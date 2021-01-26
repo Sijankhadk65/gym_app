@@ -1,13 +1,44 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./Redux/store";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import { createFirestoreInstance } from "redux-firestore";
+import firebaseConfig from "./config/firebase";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
+import { BrowserRouter as Router } from "react-router-dom";
+
+const rrfConfig = {
+  userProfile: "users",
+  userFirestoreForProfile: true,
+};
+
+firebase.initializeApp(firebaseConfig);
+firebase.firestore();
+
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  createFirestoreInstance,
+};
+
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <ReactReduxFirebaseProvider {...rrfProps}>
+      <Router>
+        <App />
+      </Router>
+    </ReactReduxFirebaseProvider>
+    {/* <ReduxFirestoreProvider {...rrfProps}>
+      <Router>
+        <App />
+      </Router>
+    </ReduxFirestoreProvider> */}
   </Provider>,
   document.getElementById("root")
 );

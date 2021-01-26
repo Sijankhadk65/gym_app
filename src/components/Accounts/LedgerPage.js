@@ -1,7 +1,18 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import CashInput from "./CashInput";
-import { Button, Col, Divider, Form, InputNumber, Row, Table } from "antd";
+
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  InputNumber,
+  Popconfirm,
+  Row,
+  Table,
+  Tag,
+} from "antd";
 import "antd/dist/antd.css";
 import {
   setCB,
@@ -9,6 +20,10 @@ import {
   addLedger,
   setFinal,
   setTransactionDate,
+  deleteTransaction,
+  setTransactions,
+  setLedger,
+  setBankTransactions,
 } from "../../Redux/Actions/actionCreators";
 
 class LedgerPage extends Component {
@@ -21,6 +36,7 @@ class LedgerPage extends Component {
     marginLeft: "10px",
   };
   onOBFinish = (values) => {
+    this.props.setBankTransactions(this.props.bankTransactions);
     this.props.setOpeningBalance(values.openingBlc);
   };
   onCBFinish = (values) => {
@@ -32,11 +48,110 @@ class LedgerPage extends Component {
     console.log(this.props.currentLedger);
   };
   columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "To", dataIndex: "to", key: "to" },
+    { title: "ID", dataIndex: "id", key: "id", width: 50, fixed: "left" },
+    { title: "To", dataIndex: "to", key: "to", width: 100, fixed: "left" },
     { title: "Amount", dataIndex: "amount", key: "amount" },
-    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      width: 120,
+    },
+    {
+      title: "Transaction Type",
+      dataIndex: "transactionType",
+      key: "transactionType",
+      width: 150,
+      render: (text, record) => {
+        return (
+          <Tag color={record.amount > 0 ? "green" : "red"} key={record.id}>
+            {text.toUpperCase()}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Actions",
+      key: "options",
+      fixed: "right",
+      render: (text, record) => (
+        <Popconfirm
+          title="Sure to delete?"
+          onConfirm={() => this.deleteItem(record.id)}
+        >
+          <a>Delete</a>
+        </Popconfirm>
+      ),
+    },
   ];
+
+  bankColumns = [
+    { title: "ID", dataIndex: "id", key: "id", width: 50, fixed: "left" },
+    { title: "To", dataIndex: "to", key: "to", width: 100, fixed: "left" },
+    { title: "Amount", dataIndex: "amount", key: "amount" },
+    {
+      title: "Voucher/Check Number",
+      dataIndex: "voucherNumber",
+      key: "voucherNumber",
+      width: 150,
+    },
+    {
+      title: "Transaction Type",
+      dataIndex: "transactionType",
+      key: "transactionType",
+      fixed: "right",
+
+      render: (text, record) => {
+        return (
+          <Tag color={record.amount > 0 ? "green" : "red"} key={record.id}>
+            Bank
+          </Tag>
+        );
+      },
+    },
+    // {
+    //   title: "Actions",
+    //   key: "options",
+    //   fixed: "right",
+    //   render: (text, record) => (
+    //     <Popconfirm
+    //       title="Sure to delete?"
+    //       onConfirm={() => this.deleteItem(record.id)}
+    //     >
+    //       <a>Delete</a>
+    //     </Popconfirm>
+    //   ),
+    // },
+  ];
+
+  // bankTransactionColumns = this.props.bankTransactions
+
+  //   .map((transaction) => {
+  //     // let date = new Date(transaction.transactionDate);
+  //     // const month = [
+  //     //   "JAN",
+  //     //   "FEB",
+  //     //   "MARCH",
+  //     //   "APRIL",
+  //     //   "MAY",
+  //     //   "JUN",
+  //     //   "JULY",
+  //     //   "SEP",
+  //     //   "OCT",
+  //     //   "NOV",
+  //     //   "DEC",
+  //     // ];
+  //     // date = `${date.getDate()} ${
+  //     //   month[date.getMonth()]
+  //     // }, ${date.getFullYear()}`;
+  //     return {};
+  //   });
+
+  deleteItem(key) {
+    this.props.deleteTransaction(key, this.props.currentLedger.transactions);
+    this.props.setClosing(this.props.currentLedger.transactions);
+    console.log(`Key:${key} `);
+  }
 
   render() {
     return (
@@ -87,62 +202,67 @@ class LedgerPage extends Component {
             </Row>
           </Col>
         </Row>
-        {/* <Row>
-          <Col>
-            <Row>
-              <Form onFinish={this.onCBFinish}>
-                <Row>
-                  <Col>
-                    <Form.Item
-                      name="closingBlc"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter Balance",
-                        },
-                      ]}
-                    >
-                      <InputNumber
-                        style={this.inputStyle}
-                        placeholder="Closing Balance"
-                      ></InputNumber>
-                    </Form.Item>
-                  </Col>
-                  <Col span={1}>
-                    <Form.Item>
-                      <Button style={this.buttonStyle} htmlType="submit">
-                        Set
-                      </Button>
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Form>
-            </Row>
-          </Col>
-        </Row> */}
 
         <CashInput></CashInput>
-        <Table
-          scroll={{ y: 180 }}
-          dataSource={this.props.transactions}
-          columns={this.columns}
-          footer={() => (
-            <div
-              style={{
-                fontFamily: "Montserrat",
-                fontWeight: "bold",
-              }}
-            >
-              Closing Balance: Rs.{this.props.currentLedger.finalAmount}
-            </div>
-          )}
-        ></Table>
-        {/* <ul>
-          {this.props.transactions.map((transaction) => (
-            <li key={transaction.id}>{transaction.amount}</li>
-          ))}
-        </ul> */}
-
+        <Row gutter={16}>
+          <Col span={12}>
+            <Divider orientation="left" style={{ fontSize: "15px" }}>
+              Current Transactions
+            </Divider>
+            <Table
+              scroll={{ y: 180, x: 700 }}
+              dataSource={this.props.currentLedger.transactions}
+              columns={this.columns}
+              // footer={() => (
+              //   <div
+              //     style={{
+              //       fontFamily: "Montserrat",
+              //       fontWeight: "bold",
+              //     }}
+              //   >
+              //     Total Transaction: Rs.
+              //     {`${
+              //       !this.props.currentLedger.transactions &&
+              //       !this.props.currentLedger.transactions.length
+              //         ? 0
+              //         : this.props.currentLedger.transactions
+              //             .map((transaction) => transaction.amount)
+              //             .reduce((am1, am2) => am1 + am2)
+              //     }`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              //   </div>
+              // )}
+            ></Table>
+          </Col>
+          <Col span={12}>
+            <Divider orientation="left" style={{ fontSize: "15px" }}>
+              Bank Transactions
+            </Divider>
+            <Table
+              scroll={{ y: 180, x: 600 }}
+              dataSource={this.props.bankTransactions}
+              columns={this.bankColumns}
+              // footer={() => (
+              //   <div
+              //     style={{
+              //       fontFamily: "Montserrat",
+              //       fontWeight: "bold",
+              //     }}
+              //   >
+              //     Total Transaction: Rs.
+              //     {`${
+              //       !this.props.bankTransactions &&
+              //       !this.props.bankTransactions.length
+              //         ? 0
+              //         : this.props.bankTransactions
+              //             .map((transaction) => transaction.amount)
+              //             .reduce((am1, am2) => am1 + am2)
+              //     }`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              //   </div>
+              // )}
+            ></Table>
+          </Col>
+        </Row>
+        <div>{this.props.currentLedger.finalAmount}</div>
         <Button
           style={{
             borderRadius: "5px",
@@ -164,8 +284,8 @@ class LedgerPage extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    transactions: state.transactions,
     currentLedger: state.currentLedger,
+    bankTransactions: state.bankTransaction,
   };
 };
 
@@ -177,6 +297,24 @@ const mapDispatchToProps = (dispatch) => {
     },
     addLedger: (ledger) => {
       dispatch(addLedger(ledger));
+      dispatch(
+        setLedger({
+          openingBalance: 0,
+          transactions: [],
+          transactionDate: "",
+          finalAmount: 0,
+        })
+      );
+    },
+    setClosing: (transactions) => {
+      // dispatch(setTransactions(transactions));
+      dispatch(setFinal());
+    },
+    deleteTransaction: (index, transactions) => {
+      dispatch(deleteTransaction(index, transactions));
+    },
+    setBankTransactions: (transactions) => {
+      dispatch(setBankTransactions(transactions));
     },
   };
 };

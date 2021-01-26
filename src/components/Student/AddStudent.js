@@ -1,113 +1,177 @@
-import React from "react";
-import { Button, DatePicker, Input, Form, InputNumber } from "antd";
+import React, { Component } from "react";
+import {
+  Button,
+  DatePicker,
+  Input,
+  Form,
+  InputNumber,
+  Switch,
+  Select,
+  Col,
+  Row,
+} from "antd";
 import "antd/dist/antd.css";
+import { connect } from "react-redux";
+import { addStudent } from "../../Redux/Actions/actionCreators";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
-const AddStudent = ({ addNewStudent }) => {
-  const [form] = Form.useForm();
+let paymentPackage = "1";
 
-  const onFinish = (values) => {
-    addNewStudent(values);
-    console.log("Success:", values);
-    form.resetFields();
+class AddStudent extends Component {
+  state = {
+    stuName: "",
+    stuAge: 0,
+    initWeight: 0,
+    address: "",
+    phNumber: 0,
+    email: "",
+    photoURI: "",
+    joinedDate: "",
+    isPaid: false,
+    paymentPackage: 1,
   };
 
-  const onFinishFailed = (errorInfo) => {
+  onFinish = (values) => {
+    console.log(values);
+    this.props.addStudent(values);
+    // e.preventDefault();
+    // console.log({
+    //   ...this.state,
+    //   progress: [],
+    // });
+  };
+
+  onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
-  return (
-    <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-      <Form.Item
-        name="stuName"
-        rules={[
-          {
-            required: true,
-            message: "Please enter name!",
-          },
-        ]}
-        label="Student's Name"
-      >
-        <Input></Input>
-      </Form.Item>
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
 
-      <Form.Item
-        name="stuAge"
-        rules={[
-          {
-            required: true,
-            message: "Please enter age!",
-          },
-        ]}
-        label="Student's Age"
-      >
-        <Input></Input>
-      </Form.Item>
+  onPackageChange = (value) => {
+    paymentPackage = value;
+  };
 
-      <Form.Item
-        name="initWeight"
-        rules={[
-          {
-            required: true,
-            message: "Please input weight!",
-          },
-        ]}
-        label="Student's weight"
-      >
-        <InputNumber></InputNumber>
-      </Form.Item>
+  render() {
+    return (
+      <Form onFinish={this.onFinish}>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please enter name!",
+            },
+          ]}
+          label="Student's Name"
+          name="stuName"
+        >
+          <Input></Input>
+        </Form.Item>
 
-      <Form.Item
-        name="address"
-        rules={[
-          {
-            required: true,
-            message: "Please input address!",
-          },
-        ]}
-        label="Student's Address"
-      >
-        <Input></Input>
-      </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please enter age!",
+            },
+          ]}
+          label="Student's Age"
+          name="stuAge"
+        >
+          <InputNumber></InputNumber>
+        </Form.Item>
 
-      <Form.Item
-        name="phNumber"
-        rules={[
-          {
-            required: true,
-            message: "Please input phone number!",
-          },
-        ]}
-        label="Student's Number"
-      >
-        <InputNumber></InputNumber>
-      </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please input weight!",
+            },
+          ]}
+          label="Student's weight"
+          name="initWeight"
+        >
+          <InputNumber></InputNumber>
+        </Form.Item>
 
-      <Form.Item
-        name="email"
-        rules={[
-          {
-            required: true,
-            message: "Please input email!",
-          },
-        ]}
-        label="Student's Email"
-      >
-        <Input></Input>
-      </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please input address!",
+            },
+          ]}
+          label="Student's Address"
+          name="address"
+        >
+          <Input></Input>
+        </Form.Item>
 
-      <Form.Item name="photoUri">
-        <Input type="file" accept="image/*"></Input>
-      </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please input phone number!",
+            },
+          ]}
+          label="Student's Number"
+          name="phNumber"
+        >
+          <InputNumber></InputNumber>
+        </Form.Item>
 
-      <Form.Item name="joindedDate">
-        <DatePicker></DatePicker>
-      </Form.Item>
+        <Form.Item
+          rules={[
+            {
+              required: true,
+              message: "Please input email!",
+            },
+          ]}
+          label="Student's Email"
+          name="email"
+        >
+          <Input></Input>
+        </Form.Item>
 
-      <Form.Item>
-        <Button htmlType="submit">Save</Button>
-      </Form.Item>
-    </Form>
-  );
+        <Form.Item name="photoUri">
+          <Input type="file" accept="image/*"></Input>
+        </Form.Item>
+
+        <Form.Item name="joindedDate">
+          <DatePicker></DatePicker>
+        </Form.Item>
+        {/* <Form.Item name="isPaid">
+          <Switch
+            checkedChildren={<CheckOutlined />}
+            unCheckedChildren={<CloseOutlined />}
+            defaultChecked
+          ></Switch>
+        </Form.Item>
+        <Form.Item name="paymentPackage">
+          <Select defaultValue="1" style={{ width: 120 }}>
+            <Select.Option value="1">1-mnth</Select.Option>
+            <Select.Option value="2">2-mnth</Select.Option>
+            <Select.Option value="3">3-mnth</Select.Option>
+          </Select>
+        </Form.Item> */}
+
+        <Form.Item>
+          <Button htmlType="submit">Save</Button>
+        </Form.Item>
+      </Form>
+    );
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addStudent: (student) => {
+      dispatch(addStudent(student));
+    },
+  };
 };
 
-export default AddStudent;
+export default connect(null, mapDispatchToProps)(AddStudent);

@@ -1,12 +1,19 @@
+import { firebaseReducer } from "react-redux-firebase";
+import { firestoreReducer } from "redux-firestore";
 import { combineReducers } from "redux";
+import bankReducer from "./bankReducer";
 import currentLedgerReducer from "./currentLedgerReducer";
 import ledgerReducer from "./ledgerReducer";
-import transactionReducer from "./transactionReducer";
+import studentReducer from "./studentReducer";
+// import transactionReducer from "./transactionReducer";
 
 const rootReducer = combineReducers({
   ledgers: ledgerReducer,
-  transactions: transactionReducer,
   currentLedger: currentLedgerReducer,
+  students: studentReducer,
+  bankTransaction: bankReducer,
+  firebase: firebaseReducer,
+  firestore: firestoreReducer,
 });
 
 export default rootReducer;

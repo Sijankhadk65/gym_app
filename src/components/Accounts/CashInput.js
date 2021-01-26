@@ -1,4 +1,13 @@
-import { Button, Input, Form, InputNumber, Row, Col, Divider } from "antd";
+import {
+  Button,
+  Input,
+  Form,
+  InputNumber,
+  Row,
+  Col,
+  Divider,
+  Select,
+} from "antd";
 import {
   addTransaction,
   setFinal,
@@ -9,11 +18,25 @@ import "antd/dist/antd.css";
 import React, { Component } from "react";
 import TextArea from "antd/lib/input/TextArea";
 class CashInput extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      transactionType: "cash",
+    };
+  }
+
   onFinish = (values) => {
-    // addTranscation(values);
-    this.props.addTranscation(values);
-    this.props.setFinal(this.props.transactions);
-    console.log(values);
+    this.props.addTranscation({
+      ...values,
+      transactionType: this.state.transactionType,
+    });
+    this.props.setFinal(this.props.currentLedger.transactions);
+    console.log({ ...values, trasnsactionType: this.state.transactionType });
+  };
+  onTransactionChange = (value) => {
+    this.setState({
+      transactionType: value,
+    });
   };
   inputStyle = {
     borderRadius: "5px",
@@ -123,6 +146,41 @@ class CashInput extends Component {
               </Row>
             </Col>
             <Col>
+              <Row>
+                <Col>
+                  <Row>
+                    <div
+                      style={{
+                        fontFamily: "Montserrat",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Description
+                    </div>
+                  </Row>
+                  <Row>
+                    <Form.Item initialValue="cash">
+                      <Select
+                        onChange={this.onTransactionChange}
+                        defaultValue="cash"
+                      >
+                        <Select.Option value="esewa">Esewa</Select.Option>
+                        <Select.Option value="mobile-banking">
+                          Mobile Banking
+                        </Select.Option>
+                        <Select.Option value="cash">Cash</Select.Option>
+                      </Select>
+                      {/* <TextArea
+                        style={this.inputStyle}
+                        placeholder="Transaction Desctiption"
+                        autoSize
+                      /> */}
+                    </Form.Item>
+                  </Row>
+                </Col>
+              </Row>
+            </Col>
+            <Col>
               <Form.Item>
                 <Button htmlType="submit">Add</Button>
               </Form.Item>
@@ -147,7 +205,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 const mapStateToProps = (state) => {
   return {
-    transactions: state.transactions,
+    currentLedger: state.currentLedger,
   };
 };
 
